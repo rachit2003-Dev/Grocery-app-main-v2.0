@@ -5,6 +5,7 @@ import 'package:flutter_app/providers/location_provider.dart';
 import 'package:flutter_app/screens/home_screen.dart';
 import 'package:flutter_app/screens/login_screen.dart';
 import 'package:flutter_app/screens/map_screen.dart';
+import 'package:flutter_app/screens/signup_screen.dart';
 import 'package:flutter_app/screens/splash_screen.dart';
 import 'package:flutter_app/screens/welcome_screen.dart';
 import 'package:provider/provider.dart';
@@ -36,11 +37,12 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(primaryColor: Colors.deepPurpleAccent),
       initialRoute: SplashScreen.id,
       routes: {
-        SplashScreen.id:(context)=>SplashScreen(),
-        HomeScreen.id:(context)=>HomeScreen(),
-        WelcomeScreen.id:(context)=>WelcomeScreen(),
+        SplashScreen.id:(context)=>const SplashScreen(),
+        HomeScreen.id:(context)=>const HomeScreen(),
+        WelcomeScreen.id:(context)=>const WelcomeScreen(),
         MapScreen.id:(context)=>const MapScreen(),
         LoginScreen.id:(context)=>const LoginScreen(),
+        SignUPScreen.id:(context)=>const SignUPScreen(),
       },
     );
   }

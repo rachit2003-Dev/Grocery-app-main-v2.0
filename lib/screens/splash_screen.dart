@@ -7,6 +7,8 @@ import 'package:flutter_app/screens/welcome_screen.dart';
 import 'home_screen.dart';
 class SplashScreen extends StatefulWidget {
   static const String id= 'splash-screen';
+
+  const SplashScreen({super.key});
   @override
   State<SplashScreen> createState() => _SplashScreenState();
 }
@@ -15,7 +17,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     Timer(
-        Duration(
+        const Duration(
           seconds: 2,
         ), () {
       FirebaseAuth.instance.authStateChanges().listen((User? user) {

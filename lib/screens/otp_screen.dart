@@ -1,17 +1,17 @@
+import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_app/screens/welcome_screen.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/auth_provider.dart';
 import '../providers/location_provider.dart';
-import 'home_screen.dart';
 
 class OTPScreen extends StatefulWidget {
   static const String id = 'otp_screen';
   const OTPScreen({super.key, required this.phoneNumber});
   final String phoneNumber;
+
 
   @override
   _OtpScreenState createState() => _OtpScreenState();
@@ -20,9 +20,12 @@ class OTPScreen extends StatefulWidget {
 class _OtpScreenState extends State<OTPScreen> {
   late TextEditingController _otpController1, _otpController2, _otpController3, _otpController4, _otpController5, _otpController6;
   late FocusNode _focusNode1, _focusNode2, _focusNode3, _focusNode4, _focusNode5, _focusNode6;
+  late Timer countdownTimer;
+  late int resendTime=20;
 
   @override
   void initState() {
+    startTimer();
     super.initState();
     _otpController1 = TextEditingController();
     _otpController2 = TextEditingController();
@@ -38,6 +41,21 @@ class _OtpScreenState extends State<OTPScreen> {
     _focusNode5 = FocusNode();
     _focusNode6 = FocusNode();
   }
+  void startTimer(){
+    countdownTimer=Timer.periodic(const Duration(seconds: 1), (timer) {
+      setState(() {
+        resendTime = resendTime-1;
+      });
+      if(resendTime<1){
+        countdownTimer.cancel();
+      }
+    });
+  }
+  void stopTimer(){
+    if(countdownTimer.isActive){
+      countdownTimer.cancel();
+    }
+  }
 
   void nextField({required String value, required FocusNode focusNode}) {
     if (value.length == 1) {
@@ -47,8 +65,8 @@ class _OtpScreenState extends State<OTPScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final auth = Provider.of<AuthProvider>(context);
-    final locationData = Provider.of<LocationProvider>(context);
+    AuthProvider auth = Provider.of<AuthProvider>(context);
+    LocationProvider locationData = Provider.of<LocationProvider>(context);
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -69,6 +87,32 @@ class _OtpScreenState extends State<OTPScreen> {
               const SizedBox(height: 10),
               Text('OTP sent to ${widget.phoneNumber}', style: const TextStyle(fontSize: 16)),
               const SizedBox(height: 10),
+              Visibility(
+                visible: auth.error=='Invalid OTP' ? true:false,
+                child: Container(
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                        colors: [
+                          Color(0xff882f8c),
+                          Color(0xfffda3ff),
+                        ],
+                        stops: [
+                          0.0,
+                          0.5
+                        ],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter),
+                  ),
+                  child:
+                      Column(
+                      children: [
+                        Text('${auth.error}- Try Again', style: const TextStyle(color: Colors.red, fontSize: 12),),
+                        const SizedBox(height: 3,),
+                      ]
+                    ),
+                ),
+              ),
+              const SizedBox(height: 10),
               const Text('Enter the OTP', style: TextStyle(fontSize: 16)),
               const SizedBox(height: 10),
               Row(
@@ -82,6 +126,22 @@ class _OtpScreenState extends State<OTPScreen> {
                   Flexible(child: buildCodeNumberBox(_otpController6,focusNode:_focusNode6)),
                 ],
               ),
+              const SizedBox(height: 10),
+              TextButton(
+                child: RichText(
+                  text: TextSpan(
+                      text: 'Did not recieve OTP? ',
+                      style: const TextStyle(color: Colors.grey),
+                      children: [
+                        TextSpan(
+                            text: resendTime>0?'00:$resendTime': 'Resend OTP',
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.deepPurpleAccent))
+                      ]),
+                ),
+                onPressed: () {},
+              ),
               const SizedBox(height: 20),
               MaterialButton(
                 onPressed: () async {
@@ -93,12 +153,7 @@ class _OtpScreenState extends State<OTPScreen> {
 
                     final User? user =
                         (await auth.signInWithCredential(phoneAuthCredential))?.user;
-                    if (user != null) {
-                      auth.loading=false;
-                      Navigator.pushReplacementNamed(context, HomeScreen.id);
-                    } else {
-                      print('login Failed');
-                    }
+
                   } catch (e) {
                     auth.error = 'Invalid OTP';
                     auth.notifyListeners();
@@ -109,7 +164,7 @@ class _OtpScreenState extends State<OTPScreen> {
                 minWidth: double.infinity,
                 color: Theme.of(context).primaryColor,
                 textColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                 child: const Text('Verify', style: TextStyle(fontSize: 20)),
               ),
             ],
@@ -127,14 +182,16 @@ class _OtpScreenState extends State<OTPScreen> {
       child: SizedBox(
         width: MediaQuery.of(context).size.width / 9,
         child: TextFormField(
+          maxLength: 1,
           controller: controller,
           focusNode: focusNode,
           autofocus: true,
           obscureText: true,
           keyboardType: TextInputType.number,
           textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           decoration: InputDecoration(
+            counterText: '',
             contentPadding:
             EdgeInsets.symmetric(vertical:
             MediaQuery.of(context).size.width / 15),

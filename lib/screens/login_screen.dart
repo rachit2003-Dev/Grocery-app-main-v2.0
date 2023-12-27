@@ -1,15 +1,16 @@
 import "package:flutter/material.dart";
 import "package:flutter_app/providers/auth_provider.dart";
-import "package:flutter_app/screens/home_screen.dart";
 import "package:flutter_app/screens/otp_screen.dart";
-import "package:get/get.dart";
+import "package:flutter_app/screens/signup_screen.dart";
 import "package:provider/provider.dart";
 
 import "../providers/location_provider.dart";
+import "map_screen.dart";
 
 class LoginScreen extends StatefulWidget {
   static const String id = 'login-screen';
   const LoginScreen({super.key});
+
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -17,7 +18,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   bool _validPhoneNumber = false;
-  var _phoneNumberController = TextEditingController();
+  final _phoneNumberController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     final auth = Provider.of<AuthProvider>(context);
@@ -28,23 +29,19 @@ class _LoginScreenState extends State<LoginScreen> {
           padding: const EdgeInsets.all(20.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Visibility(
-                visible: auth.error=='Invalid OTP' ? true:false,
-                child: Container(
-                  child: Column(
-                    children: [
-                      Text('${auth.error}- Try Again', style: TextStyle(color: Colors.red, fontSize: 12),),
-                      const SizedBox(height: 3,),
-                    ],
-                  ),
-                ),
-              ),
-              const Text(
-                'LOGIN',
-                style:
-                TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
+            children: <Widget>[
+              const SizedBox(height: 30),
+              IconButton(
+                icon: const Stack(children: <Widget>[
+                  Icon(Icons.arrow_back,color: Colors.black,),
+                  Icon(Icons.arrow_back,color: Colors.black,),
+                ],),
+                onPressed: (){
+                  auth.loading=false;
+                  Navigator.pushReplacementNamed(context, MapScreen.id);
+                }, ),
+              const Text('Login', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 10),
               const Text(
                 'Enter your phone number to proceed',
                 style: TextStyle(fontSize: 12, color: Colors.grey),
@@ -53,14 +50,14 @@ class _LoginScreenState extends State<LoginScreen> {
                 height: 20,
               ),
               TextField(
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                     prefixText: '+91',
                     labelText: '10 digit mobile number',
                     labelStyle:
-                    const TextStyle(color: Colors.deepPurpleAccent),
-                    focusedBorder: const UnderlineInputBorder(
+                    TextStyle(color: Colors.deepPurple),
+                    focusedBorder: UnderlineInputBorder(
                       borderSide:
-                      BorderSide(color: Colors.deepPurpleAccent),
+                      BorderSide(color: Colors.deepPurple),
                     )),
                 autofocus: true,
                 keyboardType: TextInputType.phone,
@@ -84,48 +81,73 @@ class _LoginScreenState extends State<LoginScreen> {
               Row(
                 children: [
                   Expanded(
-                    child: AbsorbPointer(
-                      absorbing: _validPhoneNumber ? false : true,
-                      child: TextButton(
-                        onPressed: () {
-                          setState((){
-                            auth.loading=true;
-                          });
-                          String number =
-                              '+91${_phoneNumberController.text}';
-                          auth.verifyPhone(
-                              context: context,
-                              number: number,
-                            latitude: locationData.latitude,
-                            longitude: locationData.longitude,
-                            address: locationData.selectedAddress,
-                          ).then((value){
-                            _phoneNumberController.clear();
-                            setState(() {
-                              auth.loading=false;
-                            });
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => OTPScreen(phoneNumber: number),
+                    child: Column(
+                      children: [
+                        AbsorbPointer(
+                          absorbing: _validPhoneNumber ? false : true,
+                          child: SizedBox(
+                            width: MediaQuery.of(context).size.width-40,
+                            child: TextButton(
+                              onPressed: () {
+                                setState((){
+                                  auth.loading=true;
+                                });
+                                String number =
+                                    '+91${_phoneNumberController.text}';
+                                auth.verifyPhone(
+                                    context: context,
+                                    number: number,
+                                ).then((value){
+                                  _phoneNumberController.clear();
+                                  setState(() {
+                                    auth.loading=false;
+                                  });
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => OTPScreen(phoneNumber: number),
+                                    ),
+                                  );
+                                });
+                              },
+                              style: TextButton.styleFrom(
+                                foregroundColor: Colors.white,
+                                backgroundColor: _validPhoneNumber
+                                    ? Colors.deepPurple
+                                    : Colors.grey,
                               ),
-                            );
-                          });
-                        },
-                        style: TextButton.styleFrom(
-                          foregroundColor: Colors.white,
-                          backgroundColor: _validPhoneNumber
-                              ? Colors.deepPurpleAccent
-                              : Colors.grey,
+                              child: auth.loading?const CircularProgressIndicator(
+                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              ):Text(
+                                _validPhoneNumber
+                                    ? 'CONTINUE'
+                                    : 'ENTER PHONE NUMBER',
+                              ),
+                            ),
+                          ),
                         ),
-                        child: auth.loading?CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                        ):Text(
-                          _validPhoneNumber
-                              ? 'CONTINUE'
-                              : 'ENTER PHONE NUMBER',
+                        TextButton(
+                          child: RichText(
+                            text: const TextSpan(
+                                text: 'Not a Customer ? ',
+                                style: TextStyle(color: Colors.grey),
+                                children: [
+                                  TextSpan(
+                                      text: 'Sign Up',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.deepPurpleAccent))
+                                ]),
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              auth.screen='Login-Failecd';
+                            });
+                            Navigator.pushReplacementNamed(context, SignUPScreen.id);
+                            auth.loading=false;
+                          },
                         ),
-                      ),
+                      ],
                     ),
                   ),
                 ],

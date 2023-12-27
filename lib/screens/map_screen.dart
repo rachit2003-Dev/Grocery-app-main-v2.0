@@ -2,9 +2,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/providers/auth_provider.dart';
 import 'package:flutter_app/providers/location_provider.dart';
-import 'package:flutter_app/screens/home_screen.dart';
 import 'package:flutter_app/screens/login_screen.dart';
 import 'package:flutter_app/screens/welcome_screen.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 class MapScreen extends StatefulWidget {
@@ -32,17 +32,16 @@ class _MapScreenState extends State<MapScreen> {
     setState(() {
       user = FirebaseAuth.instance.currentUser!;
     });
-    if(user!=null){
-      setState(() {
-        _loggedIn=true;
-      });
+    setState(() {
+      _loggedIn=true;
+      user = FirebaseAuth.instance.currentUser!;
+    });
     }
-  }
 
 
   @override
   Widget build(BuildContext context) {
-    final _auth = Provider.of<AuthProvider>(context);
+    final auth = Provider.of<AuthProvider>(context);
     final locationData=Provider.of<LocationProvider>(context);
 
     setState(() {
@@ -82,64 +81,48 @@ class _MapScreenState extends State<MapScreen> {
               top: 10.0,
               left: 10.0,
               child: IconButton(
-                icon: Icon(Icons.arrow_back),color: Theme.of(context).primaryColor,
+                icon: const Icon(Icons.arrow_back),color: Theme.of(context).primaryColor,
                 onPressed: () => Navigator.pushReplacementNamed(context, WelcomeScreen.id),
-              ),
-            ),
-            Positioned(
-              top: 10.0,
-              left: 50.0,
-              right: 50.0,
-              child: Container(
-                height: 50.0,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10.0),
-                    color: Colors.white
-                ),
-                child: TextField(
-                  decoration: InputDecoration(
-                      hintText: 'Enter Address',
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.only(left: 15.0, top: 15.0),
-                      suffixIcon: IconButton(
-                          icon: Icon(Icons.search),
-                          onPressed: (){},
-                          iconSize: 30.0
-                      )
-                  ),
-                ),
               ),
             ),
             Center(child: Container(
               height: 60,
-              margin: EdgeInsets.only(bottom: 40),
+              margin: const EdgeInsets.only(bottom: 40),
               child: Image.asset('asset/images/marker.png'),
               ),
             ),
-            FloatingActionButton(
-              onPressed: (){},
-              child: Icon(Icons.my_location),
-              backgroundColor: Theme.of(context).primaryColor,
+            const Center(
+              child: SpinKitPulse(
+                color: Colors.deepPurple,
+                size: 75.0,
+              ),
             ),
             Positioned(
               bottom: 0.0,
               child: Container(
-                height: 150,
+                height: 230,
                 width: MediaQuery.of(context).size.width,
                 color: Colors.white,
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
+
                       _locating ? LinearProgressIndicator(
                         valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor),
                         backgroundColor: Colors.transparent,
                       ) : Container(),
-                      Padding(padding: EdgeInsets.all(10),
+                      Padding(padding: const EdgeInsets.all(10),
 
                         child: Column(
                           children: [
-                            Text('SELECT DELIVERY LOCATION', style: TextStyle(color: Colors.black54,fontSize: 10),)
+                            TextButton(
+                              onPressed: (){locationData.getCurrentPosition();},
+                              style: TextButton.styleFrom(backgroundColor: Theme.of(context).primaryColor,),
+                              child: const Icon(Icons.my_location,
+                                color: Colors.white,),
+                            ),
+                            const SizedBox(height: 10),
+                            const Text('SELECT DELIVERY LOCATION', style: TextStyle(color: Colors.black54,fontSize: 10),)
 
                           ],
                         ),
@@ -151,7 +134,7 @@ class _MapScreenState extends State<MapScreen> {
                           icon: Icon(Icons.location_searching_sharp, color: Theme.of(context).primaryColor,),
                           label: Text(
                             _locating ? 'Locating' : locationData.selectedAddress,
-                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.black),
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.black),
                           ),
                         ),
                       ),
@@ -171,16 +154,16 @@ class _MapScreenState extends State<MapScreen> {
                               ),
                               onPressed: (){
                                 if(_loggedIn==false){
-                                  Navigator.pushNamed(context, LoginScreen.id);
+                                    Navigator.pushNamed(context, LoginScreen.id);
                                 }else{
-                                  _auth.updateUser(
+                                  auth.updateUser(
                                     id: user.uid,
                                     number: user.phoneNumber,
                                     latitude: locationData.latitude,
                                     longitude: locationData.longitude,
                                     address: locationData.selectedAddress,
                                   );
-                                  Navigator.pushReplacementNamed(context, HomeScreen.id);
+                                  Navigator.pushReplacementNamed(context, LoginScreen.id);
                                 }
                               },
                                 child: const Text('CONFIRM LOCATION'), ),

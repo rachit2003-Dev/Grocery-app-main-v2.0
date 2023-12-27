@@ -6,10 +6,11 @@ import 'package:flutter_app/screens/map_screen.dart';
 import 'package:flutter_app/screens/onboard_screen.dart';
 import 'package:provider/provider.dart';
 
-import 'otp_screen.dart';
 
 class WelcomeScreen extends StatefulWidget {
   static const String id= 'welcome-screen';
+
+  const WelcomeScreen({super.key});
 
   @override
   State<WelcomeScreen> createState() => _WelcomeScreenState();
@@ -20,8 +21,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   Widget build(BuildContext context) {
     final auth = Provider.of<AuthProvider>(context);
 
-    bool _validPhoneNumber = false;
-    var _phoneNumberController = TextEditingController();
+    bool validPhoneNumber = false;
+    var phoneNumberController = TextEditingController();
 
     void showBottomSheet(context) {
       showModalBottomSheet(
@@ -35,17 +36,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Visibility(
-                      visible: auth.error=='Invalid OTP' ? true:false,
-                      child: Container(
-                        child: Column(
-                          children: [
-                            Text('${auth.error}- Try Again', style: TextStyle(color: Colors.red, fontSize: 12),),
-                            const SizedBox(height: 3,),
-                          ],
-                        ),
-                      ),
-                    ),
                     const Text(
                       'LOGIN',
                       style:
@@ -59,27 +49,27 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       height: 20,
                     ),
                     TextField(
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                           prefixText: '+91',
                           labelText: '10 digit mobile number',
                           labelStyle:
-                              const TextStyle(color: Colors.deepPurpleAccent),
-                          focusedBorder: const UnderlineInputBorder(
+                              TextStyle(color: Colors.deepPurpleAccent),
+                          focusedBorder: UnderlineInputBorder(
                             borderSide:
                                 BorderSide(color: Colors.deepPurpleAccent),
                           )),
                       autofocus: true,
                       keyboardType: TextInputType.phone,
                       maxLength: 10,
-                      controller: _phoneNumberController,
+                      controller: phoneNumberController,
                       onChanged: (value) {
                         if (value.length == 10) {
                           myState(() {
-                            _validPhoneNumber = true;
+                            validPhoneNumber = true;
                           });
                         } else {
                           myState(() {
-                            _validPhoneNumber = false;
+                            validPhoneNumber = false;
                           });
                         }
                       },
@@ -91,28 +81,28 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       children: [
                         Expanded(
                           child: AbsorbPointer(
-                            absorbing: _validPhoneNumber ? false : true,
+                            absorbing: validPhoneNumber ? false : true,
                             child: TextButton(
                               onPressed: () {
                                 myState(() {
                                   auth.loading = false;
                                 });
-                                String number = '+91${_phoneNumberController.text}';
+                                String number = '+91${phoneNumberController.text}';
                                 auth.verifyPhone(context: context, number: number).then((value) {
-                                  _phoneNumberController.notifyListeners();
+                                  phoneNumberController.notifyListeners();
                                 });
                               },
                               style: TextButton.styleFrom(
                                 foregroundColor: Colors.white,
-                                backgroundColor: _validPhoneNumber
+                                backgroundColor: validPhoneNumber
                                     ? Colors.deepPurpleAccent
                                     : Colors.grey,
                               ),
-                              child: auth.loading ? CircularProgressIndicator(
+                              child: auth.loading ? const CircularProgressIndicator(
                                 valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                               ):
                               Text(
-                                _validPhoneNumber
+                                validPhoneNumber
                                     ? 'CONTINUE'
                                     : 'ENTER PHONE NUMBER',
                               ),
@@ -137,7 +127,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           children: [
             Column(
               children: [
-                Expanded(
+                const Expanded(
                   child: OnBoardScreen(),
                 ),
                 const Text(
@@ -152,7 +142,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     foregroundColor: Colors.white,
                     backgroundColor: Colors.deepPurpleAccent,
                   ),
-                  child:locationData.loading?CircularProgressIndicator(
+                  child:locationData.loading?const CircularProgressIndicator(
                     valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                   ): const Text(
                     'SET DELIVERY LOCATION',
@@ -190,6 +180,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         ]),
                   ),
                   onPressed: () {
+                    setState(() {
+                      auth.screen='Login';
+                    });
                     auth.loading=false;
                     showBottomSheet(context);
                   },

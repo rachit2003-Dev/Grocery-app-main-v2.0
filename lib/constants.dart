@@ -6,3 +6,6 @@ const kPageViewTextStyle = TextStyle(
 );
 
 const kApiKey = 'AIzaSyChWXRKzLohyr2YgxIll6RmML5qsQHFUFk';
+
+const Color secondaryColor80LightTheme = Color(0x003a243b);
+const defaultPadding = 16.0;

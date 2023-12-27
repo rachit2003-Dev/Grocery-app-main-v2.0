@@ -7,6 +7,8 @@ import '../providers/auth_provider.dart';
 
 class HomeScreen extends StatelessWidget {
   static const String id= 'home-screen';
+
+  const HomeScreen({super.key});
   @override
   Widget build(BuildContext context) {
     final auth = Provider.of<AuthProvider>(context);
@@ -26,11 +28,11 @@ class HomeScreen extends StatelessWidget {
                 auth.error='';
                 FirebaseAuth.instance.signOut().then((value){
                   Navigator.push(context, MaterialPageRoute(
-                    builder: (context)=>WelcomeScreen(),
+                    builder: (context)=>const WelcomeScreen(),
                   ));
                 });
               },
-              child: Text('Sign Out'),
+              child: const Text('Sign Out'),
             ),
             ElevatedButton(
               style: TextButton.styleFrom(
@@ -40,7 +42,7 @@ class HomeScreen extends StatelessWidget {
               onPressed: () {
                 Navigator.pushReplacementNamed(context, WelcomeScreen.id);
               },
-              child: Text('Home Screen'),
+              child: const Text('Home Screen'),
             ),
           ],
         ),

@@ -3,6 +3,8 @@ import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter_app/constants.dart';
 
 class OnBoardScreen extends StatefulWidget {
+  const OnBoardScreen({super.key});
+
   @override
   _OnBoardScreenState createState() => _OnBoardScreenState();
 }
@@ -25,7 +27,7 @@ List<Widget> _pages = [
   Column(
     children: [
       Expanded(child: Image.asset('asset/images/orderfood.png')),
-      Text(
+      const Text(
         'Order Online your favourite drink',
         style: kPageViewTextStyle,
         textAlign: TextAlign.center,
@@ -35,7 +37,7 @@ List<Widget> _pages = [
   Column(
     children: [
       Expanded(child: Image.asset('asset/images/deliverfood.png')),
-      Text(
+      const Text(
         'Fast Delivery within 10 mins',
         style: kPageViewTextStyle,
         textAlign: TextAlign.center,
@@ -61,12 +63,12 @@ class _OnBoardScreenState extends State<OnBoardScreen> {
               },
             ),
           ),
-          SizedBox(
+          const SizedBox(
             height: 20,
           ),
           DotsIndicator(
             dotsCount: _pages.length,
-            position: _currentPage.toDouble(),
+            position: _currentPage,
             decorator: DotsDecorator(
                 size: const Size.square(9.0),
                 activeSize: const Size(18.0, 9.0),
@@ -74,7 +76,7 @@ class _OnBoardScreenState extends State<OnBoardScreen> {
                     borderRadius: BorderRadius.circular(5.0)),
                 activeColor: Colors.deepPurpleAccent),
           ),
-          SizedBox(
+          const SizedBox(
             height: 20,
           ),
         ],

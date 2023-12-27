@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class RegisterScreen extends StatelessWidget {
+  const RegisterScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -11,10 +13,10 @@ class RegisterScreen extends StatelessWidget {
             child: Column(
               children: [
                 Hero(tag: 'logo', child: Image.asset('asset/images/logo.jpeg')),
-                TextField(),
-                TextField(),
-                TextField(),
-                TextField(),
+                const TextField(),
+                const TextField(),
+                const TextField(),
+                const TextField(),
               ],
             ),
           ),

@@ -5,8 +5,8 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class LocationProvider with ChangeNotifier{
-  late double latitude;
-  late double longitude;
+  late double latitude=0.0;
+  late double longitude=0.0;
   bool permissionAllowed=false;
   late String selectedAddress="";
   bool loading=false;
@@ -14,10 +14,10 @@ class LocationProvider with ChangeNotifier{
   Future<void>getCurrentPosition()async {
     Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
     if(position!=false){
-      this.latitude=position.latitude;
-      this.longitude=position.longitude;
-      List<Placemark> placemarks = await placemarkFromCoordinates(this.latitude, this.longitude);
-      this.permissionAllowed=true;
+      latitude=position.latitude;
+      longitude=position.longitude;
+      List<Placemark> placemarks = await placemarkFromCoordinates(latitude, longitude);
+      permissionAllowed=true;
       notifyListeners();
     }
     else{
@@ -26,14 +26,14 @@ class LocationProvider with ChangeNotifier{
   }
 
   void onCameraMove(CameraPosition cameraPosition)async{
-    this.latitude=cameraPosition.target.latitude;
-    this.longitude=cameraPosition.target.longitude;
+    latitude=cameraPosition.target.latitude;
+    longitude=cameraPosition.target.longitude;
     notifyListeners();
   }
 
 
   Future<void>getMoveCamera()async{
-    List<Placemark> placemarks = await placemarkFromCoordinates(this.latitude, this.longitude);
-    selectedAddress = placemarks.reversed.last.postalCode.toString()+" "+placemarks.reversed.last.subLocality.toString()+""+placemarks.reversed.last.name.toString();
+    List<Placemark> placemarks = await placemarkFromCoordinates(latitude, longitude);
+    selectedAddress = "${placemarks.reversed.last.subLocality} ${placemarks.reversed.last.subAdministrativeArea}${placemarks.reversed.last.name}";
   }
 }
