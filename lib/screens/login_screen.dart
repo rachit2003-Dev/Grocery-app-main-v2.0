@@ -141,7 +141,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           onPressed: () {
                             setState(() {
-                              auth.screen='Login-Failecd';
+                              auth.screen='Login-Failed';
                             });
                             Navigator.pushReplacementNamed(context, SignUPScreen.id);
                             auth.loading=false;
